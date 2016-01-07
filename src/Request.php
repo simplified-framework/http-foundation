@@ -69,7 +69,7 @@ class Request implements RequestInterface {
     }
 
     public function hasHeader($name) {
-        return $this->headers->has(name);
+        return $this->headers->has($name);
     }
 
     public function getHeader($name) {
