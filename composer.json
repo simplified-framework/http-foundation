@@ -14,6 +14,7 @@
       "Simplified\\Http\\":"src"
     },
     "files": [
+		"src/helper.php"
     ]
   }
 }
