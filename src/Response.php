@@ -153,6 +153,9 @@ class Response implements ResponseInterface {
     }
 
     public function withStatus($code, $reasonPhrase = '') {
+        if (!isset($this->statusHeaders[$code]))
+            throw new IllegalArgumentException("Status code doesn't exists");
+
         $this->status = intval($code);
         return $this;
     }
