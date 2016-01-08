@@ -3,10 +3,13 @@
 namespace Simplified\Http;
 
 use Simplified\Core\NullPointerException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 use DateTime;
 
-class Response {
-    private $headers;
+class Response implements ResponseInterface {
+    private $headers = array();
     private $status = 0;
     private $content = null;
     private $date = null;
@@ -93,24 +96,10 @@ class Response {
 
     public function __construct($content = '', $status = 200, $headers = array()) {
         $this->setContent($content);
-        $this->setStatus($status);
+        $this->withStatus($status);
         $this->setLastModified(new DateTime());
-        $this->addHeader("Content-Type", "text/html; utf-8");
+        $this->withHeader("Content-Type", "text/html; utf-8");
         $this->headers = array_merge($this->headers, $headers);
-    }
-
-    public function addHeader($name, $value) {
-        if ($name == null)
-            throw new NullPointerException('name field can not be null');
-
-        if ($value == null)
-            throw new NullPointerException('value field can not be null');
-
-        $this->headers[$name] = $value;
-    }
-
-    public function setStatus($status) {
-        $this->status = intval($status);
     }
 
     public function setContent($content) {
@@ -123,13 +112,6 @@ class Response {
 
     public function setLastModified(DateTime $date) {
         $this->lastModified = $date;
-    }
-
-    public function setProtocolVersion($version) {
-        if ($version != "HTTP/1.0" && $version != "HTTP/1.1")
-            throw new UnknownProtocolVersionException("Unknown version: $version");
-
-        $this->protocolVersion = $version;
     }
 
     public function sendHeaders() {
@@ -152,5 +134,85 @@ class Response {
         $this->sendHeaders();
         $this->sendContent();
         exit;
+    }
+
+    public function getStatusCode() {
+        return $this->status;
+    }
+
+    public function withProtocolVersion($version) {
+        if ($version != "HTTP/1.0" && $version != "HTTP/1.1")
+            throw new UnknownProtocolVersionException("Unknown version: $version");
+
+        $this->protocolVersion = $version;
+        return $this;
+    }
+
+    public function getProtocolVersion() {
+        return $this->protocolVersion;
+    }
+
+    public function withStatus($code, $reasonPhrase = '') {
+        $this->status = intval($code);
+        return $this;
+    }
+
+    public function getHeaders() {
+        return $this->headers;
+    }
+
+    public function hasHeader($name) {
+        return isset($this->headers[$name]);
+    }
+
+    public function withHeader($name, $value) {
+        if ($name == null)
+            throw new NullPointerException('name field can not be null');
+
+        if ($value == null)
+            throw new NullPointerException('value field can not be null');
+
+        $this->headers[$name] = $value;
+        return $this;
+    }
+
+    public function withoutHeader($name) {
+        if ($this->hasHeader($name))
+            unset($this->headers[$name]);
+        return $this;
+    }
+
+    public function getReasonPhrase() {
+        return $this->statusHeaders[$this->status];
+    }
+
+    public function getHeader($name) {
+        if ($this->hasHeader($name))
+            return $this->headers[$name];
+        return null;
+    }
+
+    public function withAddedHeader($name, $value) {
+        if ($name == null)
+            throw new NullPointerException('name field can not be null');
+
+        if ($value == null)
+            throw new NullPointerException('value field can not be null');
+
+        $this->headers[$name] = $value;
+        return $this;
+    }
+
+    public function getBody() {
+        return $this->content;
+    }
+
+    public function getHeaderLine($name) {
+        if ($this->hasHeader($name))
+            return $name . ": " . $this->getHeader($name);
+        return null;
+
+    }
+    public function withBody(StreamInterface $body) {
     }
 }
