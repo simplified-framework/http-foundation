@@ -35,9 +35,13 @@ class Route {
         if (func_num_args() == 1)
             $condition = func_get_arg(0);
         else
-            $condition = array(func_get_arg(0), func_get_arg(1));
+            $condition[func_get_arg(0)] = func_get_arg(1);
 
         $this->conditions = $condition;
+    }
+
+    public function getConditions() {
+        return $this->conditions;
     }
 
     public static function getCollection() {
