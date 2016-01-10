@@ -31,7 +31,12 @@ class Route {
         return self::registerRoute('delete', $uri, $arg2);
     }
 
-    public function conditions(array $condition) {
+    public function conditions() {
+        if (func_num_args() == 1)
+            $condition = func_get_arg(0);
+        else
+            $condition = array(func_get_arg(0), func_get_arg(1));
+
         $this->conditions = $condition;
     }
 
