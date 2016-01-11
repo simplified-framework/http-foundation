@@ -26,36 +26,56 @@ class UrlMatcher {
     }
 
     public function matches($url) {
-        foreach ($this->routes->toArray() as $route) {
+
+        foreach ($this->routes as $route) {
             $route_path = $route->path;
+            $required = true;
             if ($route_path === $url) {
                 if ($route->method != $this->request->getMethod())
                     return UrlMatcher::METHOD_MISMATCH;
 
+                preg_match('/'.$route_path.'/', $url, $matches);
+                array_shift($matches); // remove first element
                 $this->route = $route;
+                $this->matches = $matches;
                 break;
             }
-
-            ///////////////////////////////////////////////////////////////////////////
 
             $matches = array();
             $pattern = str_replace("/", "\\/", $route_path);
             if ( count($route->conditions) > 0 ) {
                 foreach ($route->conditions as $key => $val) {
-                    $pattern = str_replace("{".$key."}", "($val)", $pattern);
+                    if (strstr($pattern, '{'.$key.'?}')) {
+                        $required = false;
+                        $pattern = str_replace('{'.$key.'?}', "($val)", $pattern);
+                    }
+                    else
+                        $pattern = str_replace("{".$key."}", "($val)", $pattern);
                 }
             } else {
-                $pattern = preg_replace('/\{[a-zA-Z-_\?{,1}]+\}/', "([a-zA-Z]+)", $pattern);
+                $pattern = preg_replace('/\{[a-zA-Z-_\?{,1}]+\}/', '([a-zA-Z]+)', $pattern);
             }
 
             // compile pattern
-            $match = preg_match('/'.$pattern.'/', $url, $matches);
+            $match = preg_match('/^'.$pattern.'$/', $url, $matches);
 
             if (0 === $match || false == $match) {
-                if (strstr($route_path, "?}") === false) {
-                    return UrlMatcher::UNKNOWN_RESOURCE;
+                if ( count($route->conditions) == 1 && $required == false) {
+                    $key = '{' . array_keys($route->conditions)[0] . '?}';
+                    $pattern = str_replace($key, '', $route_path);
+                    $pattern = str_replace("/", "\\/", $pattern);
+                    $match = preg_match('/^'.$pattern.'$/', $url, $matches);
+
+                    if (!$match) {
+                        continue;
+                    } else {
+                        array_shift($matches); // remove first element
+                        $this->route = $route;
+                        $this->matches = $matches;
+                        break;
+                    }
                 } else {
-                    preg_match('/([a-zA-Z-_\/\?{,1}]+)/', $url, $matches);
+                    continue;
                 }
             }
 

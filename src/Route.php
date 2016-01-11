@@ -51,7 +51,8 @@ class Route {
     private static function registerRoute($type, $uri, $arg2) {
         $controller = null;
         $closure = null;
-        $name = md5(microtime());
+        srand();
+        $name = md5(microtime().rand(0,1000).uniqid(date("Y-m-d H:i:s")));
 
         if (is_array($arg2)) {
             if (isset($arg2['uses'])) {
