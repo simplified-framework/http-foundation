@@ -22,6 +22,10 @@ function route($name) {
 	throw new ResourceNotFoundException("No route named $name found. " . $routes->count());
 }
 
+function url($url) {
+	return ($url == '/') ? '' : $url;
+}
+
 if (class_exists('\\Simplified\\TwigBridge\\TwigRenderer')) {
 	class SimplifiedRouteExtension extends \Twig_Extension {
 		public function getFunctions() {
