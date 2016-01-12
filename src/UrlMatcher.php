@@ -34,7 +34,7 @@ class UrlMatcher {
                 if ($route->method != $this->request->getMethod())
                     return UrlMatcher::METHOD_MISMATCH;
 
-                preg_match('/'.$route_path.'/', $url, $matches);
+                preg_match('/'.str_replace('/', '\\/', $route_path).'/', $url, $matches);
                 array_shift($matches); // remove first element
                 $this->route = $route;
                 $this->matches = $matches;
