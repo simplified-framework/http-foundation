@@ -7,8 +7,8 @@ use Simplified\Http\ResourceNotFoundException;
 
 function route($name) {
 	$routes = RouteCollection::instance();
-	if (isset($routes[$name])) {
-		$item = $routes[$name]->path;
+	if ($routes->has($name)) {
+		$item = $routes->get($name)->path;
 		if (func_num_args() == 2) {
 			$params = func_get_arg(1);
 			$keys = array_keys($params);
@@ -18,8 +18,11 @@ function route($name) {
 				$item = str_replace("{".$key."}", $params[$key], $item);
 			}
 		}
+
+		$item = rtrim($item, '/');
 		return $item;
 	}
+
 	throw new ResourceNotFoundException("No route named $name found");
 }
 
