@@ -63,6 +63,7 @@ class UrlMatcher {
                 if ( count($route->conditions) == 1 && $required == false) {
                     $key = '{' . array_keys($route->conditions)[0] . '?}';
                     $pattern = str_replace($key, '', $route_path);
+					$pattern = rtrim($pattern, '/');
                     $pattern = str_replace("/", "\\/", $pattern);
                     $match = preg_match('/^'.$pattern.'$/', $url, $matches);
 
