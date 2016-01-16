@@ -64,6 +64,8 @@ class UrlMatcher {
                     $key = '{' . array_keys($route->conditions)[0] . '?}';
                     $pattern = str_replace($key, '', $route_path);
 					$pattern = rtrim($pattern, '/');
+                    if (empty($pattern))
+                        $pattern = '/';
                     $pattern = str_replace("/", "\\/", $pattern);
                     $match = preg_match('/^'.$pattern.'$/', $url, $matches);
 
