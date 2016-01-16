@@ -27,6 +27,15 @@ function url($url) {
 	return ($url == '/') ? '' : $url;
 }
 
+function redirect($target) {
+	if (headers_sent()) {
+		print '<html><head><meta http-equiv=refresh content="1; URL='.$target.'"></head>
+		<body><script type="text/javascript">window.location.href="'.$target.'";</script></body></html>';
+	} else {
+		(new \Simplified\Http\Response('',301,array('Location: ' . $target)))->send();
+	}
+}
+
 if (class_exists('\\Simplified\\TwigBridge\\TwigRenderer')) {
 	class SimplifiedRouteExtension extends \Twig_Extension {
 		public function getFunctions() {
@@ -34,11 +43,25 @@ if (class_exists('\\Simplified\\TwigBridge\\TwigRenderer')) {
 				'route'  => new \Twig_SimpleFunction('route',
 					array($this, 'route'),array('is_safe' => array('html'))
 				),
+				'url'  => new \Twig_SimpleFunction('url',
+					array($this, 'url'),array('is_safe' => array('html'))
+				),
+				'redirect'  => new \Twig_SimpleFunction('redirect',
+					array($this, 'redirect'),array('is_safe' => array('html'))
+				),
 			);
 		}
 
 		public function route ($name, $arg = null) {
 			return route($name, $arg);
+		}
+
+		public function url($target) {
+			return url($target);
+		}
+
+		public function redirect($target) {
+			redirect($target);
 		}
 
 		public function getName() {
