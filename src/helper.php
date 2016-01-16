@@ -32,7 +32,8 @@ function redirect($target) {
 		print '<html><head><meta http-equiv=refresh content="1; URL='.$target.'"></head>
 		<body><script type="text/javascript">window.location.href="'.$target.'";</script></body></html>';
 	} else {
-		(new \Simplified\Http\Response('',301,array('Location: ' . $target)))->send();
+		header('Location: ' . $target, 301);
+		die();
 	}
 }
 
