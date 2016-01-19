@@ -134,14 +134,13 @@ class Kernel {
             if (is_string($content)) {
                 (new Response($output . $content))->send();
             }
-            else {
-                if ($content instanceof Response) {
-                    $content->send();
-                } else {
-                    if (is_array($content)) {
-                        (new Response(json_encode($content), 200, array('Content-Type' => 'application/json; charset=utf-8')))->send();
-                    }
-                }
+            else
+            if ($content instanceof Response) {
+                $content->send();
+            }
+            else
+            if (is_array($content) || is_object($content)) {
+                (new Response(json_encode($content), 200, array('Content-Type' => 'text/plain; charset=utf-8')))->send();
             }
         } else {
             if ($output) {

@@ -30,6 +30,23 @@ function url($url) {
 	return ($url == '/') ? '' : $url;
 }
 
+function public_path() {
+	$path = dirname($_SERVER['SCRIPT_FILENAME']);
+	$path = str_replace('\\', '/', $path);
+	$path = str_replace('//', '/', $path);
+	return $path;
+}
+
+function public_url() {
+	$path = dirname($_SERVER['SCRIPT_NAME']);
+	if (empty($path))
+		$path = '/';
+
+	$path = str_replace('\\', '/', $path);
+	$path = str_replace('//', '/', $path);
+	return $path;
+}
+
 function redirect($target) {
 	if (headers_sent()) {
 		print '<html><head><meta http-equiv=refresh content="1; URL='.$target.'"></head>
