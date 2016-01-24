@@ -9,7 +9,7 @@ function route($name) {
 	$routes = RouteCollection::instance();
 	if ($routes->has($name)) {
 		$item = $routes->get($name)->path;
-		if (func_num_args() == 2) {
+		if (func_num_args() == 2 && func_get_arg(1) != null) {
 			$params = func_get_arg(1);
 			$keys = array_keys($params);
 
@@ -30,6 +30,16 @@ function url($url) {
 	return ($url == '/') ? '' : $url;
 }
 
+function redirect($target) {
+	if (headers_sent()) {
+		print '<html><head><meta http-equiv=refresh content="1; URL='.$target.'"></head>
+		<body><script type="text/javascript">window.location.href="'.$target.'";</script></body></html>';
+	} else {
+		header('Location: ' . $target, 301);
+	}
+	die();
+}
+
 function public_path() {
 	$path = dirname($_SERVER['SCRIPT_FILENAME']);
 	$path = str_replace('\\', '/', $path);
@@ -45,16 +55,6 @@ function public_url() {
 	$path = str_replace('\\', '/', $path);
 	$path = str_replace('//', '/', $path);
 	return $path;
-}
-
-function redirect($target) {
-	if (headers_sent()) {
-		print '<html><head><meta http-equiv=refresh content="1; URL='.$target.'"></head>
-		<body><script type="text/javascript">window.location.href="'.$target.'";</script></body></html>';
-	} else {
-		header('Location: ' . $target, 301);
-		die();
-	}
 }
 
 if (class_exists('\\Simplified\\TwigBridge\\TwigRenderer')) {
